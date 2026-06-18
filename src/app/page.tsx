@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useCart } from '../context/CartContext';
-import { supabase } from '../utils/supabase';
+import { useCart } from '@/context/CartContext';
+import { supabase } from '@/utils/supabase';
 import { ShoppingCart, Package2, CheckCircle, Truck, ShieldCheck } from 'lucide-react';
 
 interface Product {
@@ -10,6 +10,7 @@ interface Product {
   name: string;
   price: number;
   description: string;
+  image_url: string; // Added image_url typing to your home interface
 }
 
 export default function Home() {
@@ -21,9 +22,10 @@ export default function Home() {
     async function fetchLiveProducts() {
       try {
         setLoading(true);
+        // Explicitly asking Supabase for the image_url column along with other details
         const { data, error } = await supabase
           .from('products')
-          .select('id, name, price, description');
+          .select('id, name, price, description, image_url');
         
         if (error) {
           console.error('Supabase Query Error:', error.message);
@@ -113,9 +115,16 @@ export default function Home() {
             {products.map((product) => (
               <div key={product.id} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs flex flex-col justify-between p-4 hover:shadow-md hover:border-sky-300 transition duration-300">
                 <div className="mb-4">
-                  <div className="w-full h-32 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-xs mb-3 font-semibold border border-slate-200/60">
-                    Medical Hardware Asset Image
+                  
+                  {/* UPDATED HOMEPAGE IMAGE PANEL */}
+                  <div className="relative w-full h-32 bg-slate-100 rounded-lg overflow-hidden border border-slate-200/60 mb-3">
+                    <img 
+                      src={product.image_url || '/logo.png'} 
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
+
                   <h3 className="font-semibold text-slate-800 text-sm min-h-[40px] tracking-tight">{product.name}</h3>
                   <p className="text-xs text-slate-500 mt-1 line-clamp-2">{product.description}</p>
                   <div className="mt-3 text-base font-extrabold text-blue-900">
@@ -123,13 +132,12 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Interactive Action Button configured with Brand Red */}
                 <button
                   onClick={() => addToCart({
                     id: product.id,
                     name: product.name,
                     price: product.price,
-                    image_url: ''
+                    image_url: product.image_url || ''
                   })}
                   className="w-full bg-red-600 text-white font-semibold py-2.5 rounded-lg hover:bg-red-700 active:scale-[0.98] transition flex items-center justify-center gap-2 text-xs shadow-xs"
                 >

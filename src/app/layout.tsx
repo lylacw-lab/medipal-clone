@@ -4,6 +4,7 @@ import "./globals.css";
 import { CartProvider } from "../context/CartContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import WhatsAppBubble from '@/components/WhatsAppBubble';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +35,8 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+                    {/* Renders the WhatsApp Floating action node site-wide */}
+          <WhatsAppBubble /> 
         </CartProvider>
       </body>
     </html>

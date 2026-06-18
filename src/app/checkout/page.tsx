@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '@/context/CartContext';
 import { ShoppingBag, ArrowLeft, Truck, CreditCard, CheckCircle2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -24,6 +24,30 @@ export default function CheckoutPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    let itemizedList = '';
+    cart.forEach((item, index) => {
+      itemizedList += `${index + 1}. ${item.name} - KSh ${item.price.toLocaleString()}\n`;
+    });
+
+    const whatsappMessage = `*NEW ORDER REGISTRY - HAWK SCIENTIFIC*\n\n` +
+      `*Customer Details:*\n` +
+      `• Name: ${formData.fullName}\n` +
+      `• Phone: ${formData.phone}\n` +
+      `• Institution: ${formData.institution || 'N/A'}\n` +
+      `• Email: ${formData.email}\n\n` +
+      `*Delivery Route:*\n` +
+      `• County: ${formData.county}\n` +
+      `• Physical Address: ${formData.deliveryAddress}\n\n` +
+      `*Requested Equipment Inventory:*\n` +
+      `${itemizedList}\n` +
+      `*Grand Total:* *KSh ${getCartTotal().toLocaleString()}*\n\n` +
+      `Please confirm stock availability and send payment parameters.`;
+
+    const targetMobile = "254710535709";
+    const encodedUrl = `https://whatsapp.com{targetMobile}&text=${encodeURIComponent(whatsappMessage)}&type=phone_number&app_absent=0`;
+
+    window.location.href = encodedUrl;
     setOrderPlaced(true);
     clearCart();
   };
@@ -34,9 +58,9 @@ export default function CheckoutPage() {
         <div className="w-16 h-16 bg-sky-100 text-sky-500 rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 size={36} />
         </div>
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">Order Received!</h2>
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">Order Dispatched to WhatsApp!</h2>
         <p className="text-slate-600 text-sm mb-6">
-          A coordinator will call you on <span className="font-semibold text-blue-900">{formData.phone}</span> shortly to arrange delivery routing.
+          Your invoice manifest has been generated. If WhatsApp didn't open automatically, a coordinator will still call you on <span className="font-semibold text-blue-900">{formData.phone}</span> shortly.
         </p>
         <Link href="/">
           <button className="w-full bg-blue-900 text-white font-medium py-2.5 rounded-lg hover:bg-blue-950 transition text-sm shadow-xs">
@@ -46,7 +70,6 @@ export default function CheckoutPage() {
       </div>
     );
   }
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-10 min-h-screen bg-slate-50">
       <div className="mb-6">
@@ -71,13 +94,12 @@ export default function CheckoutPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Billing and Delivery Fields Form */}
           <div className="lg:col-span-7 bg-white border border-slate-200 p-6 rounded-xl shadow-xs">
             <h2 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2 pb-2 border-b border-slate-100">
               <Truck size={18} className="text-blue-800" />
               <span>1. Delivery Destination</span>
             </h2>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -86,7 +108,7 @@ export default function CheckoutPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">Mobile Line (M-Pesa) *</label>
-                  <input type="tel" name="phone" required value={formData.phone} onChange={handleInputChange} className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none focus:border-sky-500 text-slate-800 transition" placeholder="e.g., 0712345678" />
+                  <input type="tel" name="phone" required value={formData.phone} onChange={handleInputChange} className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none focus:border-sky-500 text-slate-800 transition" placeholder="e.g., 0710535709" />
                 </div>
               </div>
 
@@ -119,25 +141,23 @@ export default function CheckoutPage() {
 
               <h2 className="text-base font-bold text-slate-800 pt-4 mb-4 flex items-center gap-2 pb-2 border-b border-slate-100">
                 <CreditCard size={18} className="text-blue-800" />
-                <span>2. Payment Method</span>
+                <span>2. Payment & Submission Method</span>
               </h2>
 
               <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
                 <input type="radio" id="mpesa" name="payment" defaultChecked className="text-blue-800 focus:ring-sky-500" />
                 <label htmlFor="mpesa" className="cursor-pointer">
-                  <div className="text-sm font-semibold text-slate-800">Lipa na M-Pesa Cashless Dispatch</div>
-                  <div className="text-xs text-slate-500">An STK prompt will push automatically upon finalizing your order registry.</div>
+                  <div className="text-sm font-semibold text-slate-800">WhatsApp Instant Invoice Syncing</div>
+                  <div className="text-xs text-slate-500">Your total checkout summary transforms into a formatted text quote submission.</div>
                 </label>
               </div>
 
-              {/* Action Button styled in bright Brand Red */}
               <button type="submit" className="w-full mt-4 bg-red-600 text-white font-semibold py-3 rounded-lg hover:bg-red-700 active:scale-[0.99] shadow-md transition text-sm">
-                Authorize Order Execution (KSh {getCartTotal().toLocaleString()})
+                Submit Order Details via WhatsApp (KSh {getCartTotal().toLocaleString()})
               </button>
-            </form>
-          </div>
+           </form>
+         </div>
 
-          {/* Sidebar Order Summary Box */}
           <div className="lg:col-span-5 bg-blue-950 text-white p-6 rounded-xl shadow-md">
             <h2 className="text-base font-semibold mb-4 pb-2 border-b border-blue-900 tracking-wide uppercase text-slate-400">
               Order Summary ({getCartCount()})
@@ -150,7 +170,7 @@ export default function CheckoutPage() {
                     <h4 className="font-medium text-slate-200 line-clamp-1">{item.name}</h4>
                     <p className="text-xs text-slate-400 mt-0.5">KSh {item.price.toLocaleString()}</p>
                   </div>
-                  <button 
+                  <button
                     onClick={() => removeFromCart(item.id)}
                     className="text-slate-500 hover:text-red-400 p-1 transition"
                     title="Remove item"
